@@ -26,4 +26,8 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           (cd dist && sha256sum *.whl > SHA256SUMS.txt)
-          gh release create "$RELEASE_TAG" --verify-tag --title "IndexWitness $RELEASE_TAG" --notes-file docs/release-notes.md dist/*.whl dist/SHA256SUMS.txt
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/*.whl dist/SHA256SUMS.txt --clobber
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --title "IndexWitness $RELEASE_TAG" --notes-file docs/release-notes.md dist/*.whl dist/SHA256SUMS.txt
+          fi
