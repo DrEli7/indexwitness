@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "indexwitness"
+version = "0.1.0"
+description = "Counterfactual SQLite index removal experiments with workload evidence"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "DrEli7"}]
+keywords = ["sqlite", "index", "database", "ablation", "performance"]
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: OS Independent", "Topic :: Database"]
+
+[project.scripts]
+indexwitness = "indexwitness.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/DrEli7/indexwitness"
+Issues = "https://github.com/DrEli7/indexwitness/issues"
+
+[tool.setuptools.packages.find]
+include = ["indexwitness*"]

@@ -1,0 +1,29 @@
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
+      - name: Check version tag
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python -c "import os; from indexwitness import __version__; assert os.environ['RELEASE_TAG'] == 'v' + __version__"
+      - run: python -m pip wheel --no-deps --wheel-dir dist .
+      - name: Publish wheel and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          (cd dist && sha256sum *.whl > SHA256SUMS.txt)
+          gh release create "$RELEASE_TAG" --verify-tag --title "IndexWitness $RELEASE_TAG" --notes-file docs/release-notes.md dist/*.whl dist/SHA256SUMS.txt
