@@ -123,8 +123,11 @@ class EngineTests(unittest.TestCase):
         removed = next(item for item in report["experiments"] if not item["retained"])
         self.assertFalse(removed["feasible"])
         self.assertEqual(removed["queries"][0]["status"], "budget_exceeded")
-        with self.assertRaisesRegex(AnalysisError, "deadline"):
-            run_analysis(self.database, workload(), timeout=1e-12)
+        # Older Windows Python runtimes may complete within one monotonic-clock
+        # tick. Advance a controlled clock instead of assuming sub-tick precision.
+        with patch("indexwitness.engine.time.monotonic", side_effect=[0.0, 1.0]):
+            with self.assertRaisesRegex(AnalysisError, "deadline"):
+                run_analysis(self.database, workload(), timeout=0.5)
 
     def test_wal_commits_are_included(self):
         writer = sqlite3.connect(self.database)
